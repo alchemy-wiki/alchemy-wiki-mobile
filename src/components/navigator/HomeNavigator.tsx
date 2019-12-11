@@ -1,20 +1,20 @@
 import Encyclopedia from '../screen/Encyclopedia';
-import Home from '../screen/Home';
 import { Ionicons } from '@expo/vector-icons';
+import LabNavigator from './LabNavigator';
 import React from 'react';
-import Setting from '../screen/Setting';
+import Settings from '../screen/Settings';
 import { createMaterialBottomTabNavigator } from 'react-navigation-material-bottom-tabs';
 
 const iconDict = {
-  Home: 'ios-flask',
+  Lab: 'ios-flask',
   Encyclopedia: 'ios-bookmarks',
-  Setting: 'ios-settings',
+  Settings: 'ios-settings',
 };
 
 export default createMaterialBottomTabNavigator(
   {
-    Home: {
-      screen: Home,
+    Lab: {
+      screen: LabNavigator,
       navigationOptions: {
         tabBarColor: '#694fad',
       },
@@ -25,8 +25,8 @@ export default createMaterialBottomTabNavigator(
         tabBarColor: '#4d80e4',
       },
     },
-    Setting: {
-      screen: Setting,
+    Settings: {
+      screen: Settings,
       navigationOptions: {
         tabBarColor: '#5a8a68',
       },
@@ -34,7 +34,7 @@ export default createMaterialBottomTabNavigator(
   },
   {
     shifting: true,
-    initialRouteName: 'Home',
+    initialRouteName: 'Lab',
     activeColor: '#d6d6d6',
     inactiveColor: '#363636',
     barStyle: { backgroundColor: '#694fad' },

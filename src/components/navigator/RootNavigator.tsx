@@ -1,4 +1,4 @@
-import HomeNavigator from './HomNavigator';
+import HomeNavigator from './HomeNavigator';
 import Loading from '../screen/Loading';
 import { createSwitchNavigator } from 'react-navigation';
 
