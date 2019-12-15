@@ -5,6 +5,7 @@ import {
   NavigationState,
 } from 'react-navigation';
 
+import Drag from '../ui/Draggable';
 import Draggable from 'react-native-draggable';
 import React from 'react';
 
@@ -16,33 +17,23 @@ export default function(props: Props) {
   return (
     <View style={{ flex: 1 }}>
       <View style={styles.container}>
-        <Draggable
-          x={75}
+        <Drag
+          x={-100}
           y={100}
-          renderSize={56}
-          renderColor="black"
-          renderText="A"
-          isCircle
-          shouldReverse
-          onShortPressRelease={() => alert('touched!!')}
+          size={75}
+          imageSource={{
+            uri: 'https://image.flaticon.com/icons/png/512/119/119573.png',
+          }}
         />
-        <Draggable x={200} y={300} renderColor="red" renderText="B" />
-        <Draggable
-          x={200}
-          y={200}
-          isCircle
-          renderSize={50}
-          renderColor="black"
-          imageSource={{ uri: 'https://facebook.github.io/react/logo-og.png' }}
-        ></Draggable>
       </View>
-      <Button
-        onPress={() =>
-          props.navigation.navigate('Storage', { name: 'Joddev from Home' })
-        }
-        title="asdfab"
-        style={styles.bottom}
-      ></Button>
+      <View style={styles.bottom}>
+        <Button
+          onPress={() =>
+            props.navigation.navigate('Storage', { name: 'Joddev from Home' })
+          }
+          title="Storage"
+        />
+      </View>
     </View>
   );
 }
@@ -58,5 +49,6 @@ const styles = StyleSheet.create({
     flex: 1,
     position: 'absolute',
     bottom: 0,
+    left: 100,
   },
 });
