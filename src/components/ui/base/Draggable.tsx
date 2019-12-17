@@ -8,36 +8,50 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, { useCallback, useRef } from 'react';
+import React, { forwardRef, useCallback, useRef } from 'react';
 
 interface Props {
   onDrag: (
     event: GestureResponderEvent,
     gestureState: PanResponderGestureState,
+    pan: Animated.ValueXY,
+    offset: { x: number; y: number },
+  ) => void;
+  onStartDrag: (
+    event: GestureResponderEvent,
+    pan: Animated.ValueXY,
+    offset: { x: number; y: number },
   ) => void;
   onRelease: (
     event: GestureResponderEvent,
     gestureState: PanResponderGestureState,
+    pan: Animated.ValueXY,
+    offset: { x: number; y: number },
   ) => void;
-  onLongPress: (event: GestureResponderEvent) => void;
+  onLongPress: (
+    event: GestureResponderEvent,
+    pan: Animated.ValueXY,
+    offset: { x: number; y: number },
+  ) => void;
   disabled: boolean;
   size: number;
   imageSource?: ImageSourcePropType;
   backgroundColor?: string;
   x?: number;
   y?: number;
+  zIndex?: number;
 }
 
 export default function Draggable(props: Props) {
-  const pan = useRef(new Animated.ValueXY());
-  const offsetFromStart = useRef({ x: 0, y: 0 });
+  const pan = useRef(new Animated.ValueXY({ x: props.x, y: props.y }));
+  const offsetFromStart = useRef({ x: props.x, y: props.y });
   pan.current.addListener((c) => (offsetFromStart.current = c));
 
   const onShouldMove = () => !props.disabled;
 
   const onPanResponderRelease = useCallback(
     (e: GestureResponderEvent, gestureState: PanResponderGestureState) => {
-      props.onRelease(e, gestureState);
+      props.onRelease(e, gestureState, pan.current, offsetFromStart.current);
     },
     [props.onRelease],
   );
@@ -46,15 +60,16 @@ export default function Draggable(props: Props) {
     (e: GestureResponderEvent) => {
       pan.current.setOffset(offsetFromStart.current);
       pan.current.setValue({ x: 0, y: 0 });
+      props.onStartDrag(e, pan.current, offsetFromStart.current);
     },
-    [pan],
+    [pan, props.onStartDrag],
   );
 
   const onPanResponderMove = useCallback(
     (e: GestureResponderEvent, gestureState?: PanResponderGestureState) => {
       const { dx, dy } = gestureState;
       pan.current.setValue({ x: dx, y: dy });
-      props.onDrag(e, gestureState);
+      props.onDrag(e, gestureState, pan.current, offsetFromStart.current);
     },
     [pan, props.onDrag],
   );
@@ -66,6 +81,10 @@ export default function Draggable(props: Props) {
     onPanResponderRelease,
     onPanResponderMove: Animated.event([], { listener: onPanResponderMove }),
   });
+
+  const onLongPress = (event: GestureResponderEvent) => {
+    props.onLongPress(event, pan.current, offsetFromStart.current);
+  };
 
   const sizeCss = {
     width: props.size,
@@ -85,7 +104,7 @@ export default function Draggable(props: Props) {
         <Image
           style={{
             ...sizeCss,
-            resizeMode: 'contain',
+            resizeMode: 'cover', // 'contain'
           }}
           source={props.imageSource}
         />
@@ -99,22 +118,22 @@ export default function Draggable(props: Props) {
   })();
 
   return (
-    <Animated.View
-      style={pan.current.getLayout()}
-      {...panResponder.panHandlers}
-    >
-      <TouchableOpacity
-        style={{ ...sizeCss, ...positionCss }}
-        onLongPress={props.onLongPress}
+    <View style={{ position: 'absolute' }}>
+      <Animated.View
+        style={[pan.current.getLayout(), { zIndex: props.zIndex }]}
+        {...panResponder.panHandlers}
       >
-        {content}
-      </TouchableOpacity>
-    </Animated.View>
+        <TouchableOpacity style={{ ...sizeCss }} onLongPress={onLongPress}>
+          {content}
+        </TouchableOpacity>
+      </Animated.View>
+    </View>
   );
 }
 
 Draggable.defaultProps = {
   onDrag: () => {},
+  onStartDrag: () => {},
   onRelease: () => {},
   onLongPress: () => {},
   disabled: false,
